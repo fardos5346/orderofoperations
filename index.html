@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סוד קסם המתמטיקה - סדר פעולות חשבון</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #16db93;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --success: #2ec4b6;
+            --error: #e71d36;
+            --power-color: #d946ef;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .intro-section {
+            background: linear-gradient(135deg, #e6fffa 0%, #e2effa 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-right: 5px solid var(--primary);
+        }
+
+        .motivation-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .rules-list {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+
+        .rules-list li {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .math-expr {
+            direction: ltr;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .math-expr sup {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--power-color);
+            position: relative;
+            bottom: 0.6em;
+            padding-left: 2px;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 6px;
+        }
+        .fraction .numerator {
+            border-bottom: 2px solid var(--dark);
+            padding-bottom: 2px;
+        }
+        .fraction .denominator {
+            padding-top: 2px;
+        }
+
+        .sqrt-container {
+            display: inline-flex;
+            align-items: center;
+            flex-direction: row-reverse;
+            position: relative;
+            margin: 0 2px;
+        }
+        .sqrt-symbol {
+            font-size: 1.5rem;
+            font-weight: normal;
+            margin-left: -1px;
+            line-height: 1;
+        }
+        .sqrt-number {
+            border-top: 2px solid var(--dark);
+            padding-top: 1px;
+            display: inline-block;
+            line-height: 1.1;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            font-size: 1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #35537d;
+        }
+
+        .reload-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            display: block;
+            margin: 30px auto;
+        }
+
+        .reload-btn:hover {
+            background-color: #11b87d;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .feedback.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        .score-board {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* עיצוב תיבת סיכום סופית */
+        .final-results {
+            display: none;
+            background: linear-gradient(135deg, #ffedd5 0%, #fef3c7 100%);
+            border: 3px dashed #f59e0b;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin: 30px auto;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .final-results h2 {
+            color: #b45309;
+            margin-top: 0;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #d97706;
+            margin: 15px 0;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>סדר פעולות חשבון: השפה הסודית של העולם! 🚀</h1>
+    
+    <div class="intro-section">
+        <h3>למה אנחנו בכלל צריכים סדר פעולות חשבון? 🤔</h3>
+        <p>תארו לעצמכם שאתם כותבים הודעה לחבר: "אל תבוא, חם שם". אם נשנה את סדר המילים או הפיסוק, המשמעות תשתנה לגמרי! במתמטיקה, סדר פעולות החשבון הוא כמו חוקי הפיסוק והדקדוק של העולם. בלעדיו, כל אחד היה מקבל תוצאה אחרת, והעולם המודרני היה קורס.</p>
+        
+        <div class="motivation-box">
+            <strong>איפה זה פוגש אותנו בחיים האמיתיים? ✨</strong>
+            <ul>
+                <li><strong>בניית משחקי מחשב (כמו פורטנייט או מיינקראפט):</strong> הקוד של המשחק חייב לדעת בדיוק כמה נקודות פגיעה (Damage) להוריד. אם יש לכם מגן שמפחית נזק בחצי, והאויב פגע בכם פעמיים, המחשב משתמש בסדר פעולות קבוע כדי לחשב את החיים שנשארו לכם!</li>
+                <li><strong>רשתות חברתיות (אלגוריתם של טיקטוק ואינסטגרם):</strong> כדי להחליט איזה סרטון להקפיץ לכם, המערכת משקללת מספר צפיות, לייקים ושיתופים בנוסחה מתמטית ארוכה. סדר הפעולות קובע מה תראו על המסך.</li>
+                <li><strong>קניות ומבצעים:</strong> נניח שקניתם 3 חולצות ב-50 שקלים כל אחת, וקיבלתם הנחה של 20 שקלים על כל הקנייה. הנוסחה היא <span dir="ltr">3 &times; 50 - 20</span>. בזכות חוקי החשבון, המוכר בקופה ואתם יודעים בדיוק כמה לשלם.</li>
+            </ul>
+        </div>
+
+        <p><strong>החוקים שמובילים אותנו להצלחה (לפי הסדר):</strong></p>
+        <ol class="rules-list">
+            <li>סוגריים קודמים לכל!</li>
+            <li>חזקות ושורשים.</li>
+            <li>כפל וחילוק (משמאל לימין).</li>
+            <li>חיבור וחיסור (משמאל לימין).</li>
+        </ol>
+    </div>
+
+    <div class="score-board">
+        ציון נוכחי: <span id="score">0</span> מתוך <span id="total-answered">0</span>
+    </div>
+
+    <div id="final-results-box" class="final-results">
+        <h2>הסתיים התרגול! 🏆</h2>
+        <p>כל הכבוד על המאמץ וההתמדה! הציון הסופי שלכם הוא:</p>
+        <div class="final-score"><span id="final-score-val">0</span> / 20</div>
+        <p id="final-comment"></p>
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <button class="reload-btn" onclick="generateQuiz()">🔄 טען 20 שאלות חדשות לתרגול!</button>
+</div>
+
+<script>
+const masterQuestions = [
+    { html: "<div class='math-expr'>5 + 3 &times; 4</div>", ans: 17, explanation: "קודם מבצעים כפל: 3 כפול 4 זה 12. אחר כך חיבור: 5 ועוד 12 שווה 17." },
+    { html: "<div class='math-expr'>20 - 10 &divide; 2</div>", ans: 15, explanation: "קודם כל חילוק: 10 לחלק ל-2 זה 5. אז 20 פחות 5 שווה 15." },
+    { html: "<div class='math-expr'>(6 + 4) &times; 3</div>", ans: 30, explanation: "הסוגריים קודמים לכל: 6 ועוד 4 שווה 10. לאחר מכן כפל: 10 כפול 3 שווה 30." },
+    { html: "<div class='math-expr'>24 &divide; 3 - 2</div>", ans: 6, explanation: "קודם כל חילוק: 24 לחלק ל-3 שווה 8. לאחר מכן חיסור: 8 פחות 2 שווה 6." },
+    { html: "<div class='math-expr'>12 + 8 &divide; 4 - 3</div>", ans: 11, explanation: "קודם חילוק: 8 לחלק ל-4 זה 2. קיבלנו 12 ועוד 2 פחות 3, פותרים משמאל לימין ויוצא 11." },
+    { html: "<div class='math-expr'>-5 + 2 &times; 3</div>", ans: 1, explanation: "קודם כפל: 2 כפול 3 שווה 6. עכשיו מחברים את המספר השלילי: -5 ועוד 6 שווה 1." },
+    { html: "<div class='math-expr'>10 - (-3) &times; (-2)</div>", ans: 4, explanation: "קודם כפל: מינוס 3 כפול מינוס 2 שווה פלוס 6. כעת התרגיל הוא 10 פחות 6, שזה שווה 4." },
+    { html: "<div class='math-expr'>(-12) &divide; 4 + 5</div>", ans: 2, explanation: "קודם חילוק: מינוס 12 לחלק ל-4 שווה מינוס 3. מינוס 3 ועוד 5 שווה 2." },
+    { html: "<div class='math-expr'>3 &times; 2<sup>3</sup></div>", ans: 24, explanation: "חזקה קודמת לכפל: 2 בשלישית זה 8 (2 כפול 2 כפול 2). לאחר מכן 3 כפול 8 שווה 24." },
+    { html: "<div class='math-expr'>15 - <div class='sqrt-container'><span class='sqrt-number'>9</span><span class='sqrt-symbol'>&radic;</span></div></div>", ans: 12, explanation: "שורש קודם לחיסור: השורש של 9 הוא 3. כעת פותרים 15 פחות 3 שווה 12." },
+    { html: "<div class='math-expr'>4<sup>2</sup> + <div class='sqrt-container'><span class='sqrt-number'>25</span><span class='sqrt-symbol'>&radic;</span></div></div>", ans: 21, explanation: "חזקות ושורשים קודמים: 4 בריבוע זה 16, והשורש של 25 הוא 5. 16 ועוד 5 שווה 21." },
+    { html: "<div class='math-expr'>(2 + 3)<sup>2</sup> - 5</div>", ans: 20, explanation: "קודם כל סוגריים: 2 ועוד 3 שווה 5. אחר כך חזקה: 5 בריבוע זה 25. לבסוף 25 פחות 5 שווה 20." },
+    { html: "<div class='math-expr'>2 &times; <div class='sqrt-container'><span class='sqrt-number'>16</span><span class='sqrt-symbol'>&radic;</span></div> + 3<sup>2</sup></div>", ans: 17, explanation: "נפתור חזקות ושורשים: שורש של 16 הוא 4, ו-3 בריבוע זה 9. קיבלנו 2 כפול 4 ועוד 9. כפל קודם: 2 כפול 4 זה 8. 8 ועוד 9 שווה 17." },
+    { html: "<div class='math-expr'>5 + <div class='fraction'><span class='numerator'>6</span><span class='denominator'>2</span></div></div>", ans: 8, explanation: "קו שבר הוא כמו פעולת חילוק! השבר 6 חלקי 2 שווה ל-3. לכן 5 ועוד 3 שווה 8." },
+    { html: "<div class='math-expr'><div class='fraction'><span class='numerator'>12 + 8</span><span class='denominator'>4</span></div></div>", ans: 5, explanation: "כשיש ביטוי במונה, מחשבים אותו קודם (כאילו יש סוגריים סביבו): 12 ועוד 8 שווה 20. עכשיו מחלקים במכנה: 20 לחלק ל-4 שווה 5." },
+    { html: "<div class='math-expr'>10 - <div class='fraction'><span class='numerator'>3<sup>2</sup> + 1</span><span class='denominator'>2</span></div></div>", ans: 5, explanation: "קודם נחשב את המונה: 3 בריבוע זה 9, ועוד 1 שווה 10. השבר הוא 10 לחלק ל-2 שווה 5. לבסוף 10 פחות 5 שווה 5." },
+    { html: "<strong>שאלה מילולית:</strong> רוני קנתה 4 חבילות צבעים שעלות כל אחת 10 שקלים. היא קיבלה הנחה של 5 שקלים, ואז חילקה את העלות שווה בשווה עם אחיה. כמה שילם אחיה? <br> רמז, הנוסחה היא: <div class='math-expr'><div class='fraction'><span class='numerator'>4 &times; 10 - 5</span><span class='denominator'>2</span></div></div>", ans: 17.5, explanation: "קודם נפתור את המונה: 4 כפול 10 זה 40, פחות 5 זה 35. כעת נחלק ב-2 (אחיה שילם חצי): 35 לחלק ל-2 שווה 17.5." },
+    { html: "<strong>שאלה מילולית:</strong> בקופסה היו 50 סוכריות. 3 ילדים לקחו כל אחד 4 סוכריות. לאחר מכן חילקו את הסוכריות שנותרו ל-2 קבוצות שוות. כמה סוכריות יש בכל קבוצה? <br> רמז, הנוסחה היא: <div class='math-expr'><div class='fraction'><span class='numerator'>50 - 3 &times; 4</span><span class='denominator'>2</span></div></div>", ans: 19, explanation: "נחשב את המונה לפי סדר פעולות: 3 כפול 4 זה 12. 50 פחות 12 זה 38 סוכריות שנשארו. נחלק ל-2 קבוצות: 38 לחלק ל-2 שווה 19." },
+    { html: "<div class='math-expr'>(-2)<sup>3</sup> + <div class='sqrt-container'><span class='sqrt-number'>36</span><span class='sqrt-symbol'>&radic;</span></div> &times; 2</div>", ans: 4, explanation: "נפתור חזקה ושורש: מינוס 2 בשלישית זה מינוס 8. שורש 36 זה 6. כעת יש לנו: -8 + 6 כפול 2. כפל קודם: 6 כפול 2 זה 12. לבסוף: מינוס 8 ועוד 12 שווה 4." },
+    { html: "<div class='math-expr'>5 &times; (2 - 4)<sup>2</sup> - <div class='fraction'><span class='numerator'>8</span><span class='denominator'>4</span></div></div>", ans: 18, explanation: "סוגריים תחילה: 2 פחות 4 שווה מינוס 2. חזקה: מינוס 2 בריבוע זה 4 חיובי. קיבלנו 5 כפול 4 פחות השבר (8 לחלק ל-4 שזה 2). כפל קודם: 5 כפול 4 זה 20. 20 פחות 2 שווה 18." },
+    { html: "<div class='math-expr'><div class='sqrt-container'><span class='sqrt-number'>100</span><span class='sqrt-symbol'>&radic;</span></div> &divide; 2 - (-3)<sup>2</sup></div>", ans: -4, explanation: "שורש וחזקה תחילה: שורש מאה זה 10, מינוס 3 בריבוע זה 9 חיובי. כעת יש לנו 10 לחלק ל-2 פחות 9. חילוק קודם: 10 לחלק ל-2 זה 5. ולסיום: 5 פחות 9 שווה מינוס 4." },
+    { html: "<div class='math-expr'>((4 + 2) &times; 2) - 3<sup>2</sup></div>", ans: 3, explanation: "סוגריים פנימיים תחילה: 4 ועוד 2 זה 6. סוגריים חיצוניים: 6 כפול 2 זה 12. חזקה: 3 בריבוע זה 9. בסוף: 12 פחות 9 שווה 3." }
+];
+
+let score = 0;
+let totalAnswered = 0;
+const MAX_QUESTIONS = 20;
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function generateQuiz() {
+    score = 0;
+    totalAnswered = 0;
+    document.getElementById('score').innerText = score;
+    document.getElementById('total-answered').innerText = totalAnswered;
+    document.getElementById('final-results-box').style.display = 'none';
+
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = ''; 
+    
+    const shuffledQuestions = shuffle([...masterQuestions]).slice(0, MAX_QUESTIONS);
+    
+    shuffledQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `card-${index}`;
+        
+        card.innerHTML = `
+            <div class="question-text">
+                <strong>שאלה ${index + 1}:</strong> &nbsp; ${q.html} &nbsp; = &nbsp; ?
+            </div>
+            <div class="input-area">
+                <input type="number" id="input-${index}" step="any" placeholder="תשובה...">
+                <button id="btn-${index}" onclick="checkAnswer(${index}, ${q.ans}, '${escapeHtml(q.explanation)}')">בדיקה</button>
+            </div>
+            <div class="feedback" id="feedback-${index}"></div>
+        `;
+        quizContainer.appendChild(card);
+    });
+}
+
+function checkAnswer(index, correctAns, explanation) {
+    const inputEl = document.getElementById(`input-${index}`);
+    const feedbackEl = document.getElementById(`feedback-${index}`);
+    const btnEl = document.getElementById(`btn-${index}`);
+    const userAns = parseFloat(inputEl.value);
+    
+    if (isNaN(userAns)) {
+        feedbackEl.className = "feedback error";
+        feedbackEl.innerText = "אנא כתבו תשובה במספר לפני הלחיצה על בדיקה.";
+        return;
+    }
+    
+    if (feedbackEl.classList.contains('checked')) {
+        return;
+    }
+    
+    totalAnswered++;
+    feedbackEl.classList.add('checked');
+    inputEl.disabled = true;
+    btnEl.disabled = true;
+    
+    if (Math.abs(userAns - correctAns) < 0.01) { 
+        score++;
+        feedbackEl.className = "feedback success checked";
+        feedbackEl.innerHTML = `כל הכבוד! תשובה נכונה! אלופים! ✨ <br> <strong>הסבר:</strong> ${explanation}`;
+    } else {
+        feedbackEl.className = "feedback error checked";
+        feedbackEl.innerHTML = `אופס, לא בדיוק. לא נורא, מטעויות לומדים! התשובה הנכונה היא ${correctAns}. <br> <strong>איך פותרים?</strong> ${explanation}`;
+    }
+    
+    document.getElementById('score').innerText = score;
+    document.getElementById('total-answered').innerText = totalAnswered;
+
+    // בדיקה האם סיימנו את כל 20 השאלות
+    if (totalAnswered === MAX_QUESTIONS) {
+        showFinalScore();
+    }
+}
+
+function showFinalScore() {
+    const finalBox = document.getElementById('final-results-box');
+    const finalScoreVal = document.getElementById('final-score-val');
+    const finalComment = document.getElementById('final-comment');
+    
+    finalScoreVal.innerText = score;
+    finalBox.style.display = 'block';
+    
+    // גלילה חלקה אל תיבת הציון הסופי
+    finalBox.scrollIntoView({ behavior: 'smooth' });
+
+    // התאמת הודעה לפי ההישג
+    if (score === 20) {
+        finalComment.innerHTML = "🏆 <strong>מושלם! אתם מאסטרים אמיתיים בסדר פעולות חשבון! העולם הדיגיטלי קטן עליכם!</strong>";
+    } else if (score >= 15) {
+        finalComment.innerHTML = "🌟 <strong>עבודה מדהימה! הבנה מצוינת של החוקים, אתם לגמרי מוכנים לאתגר הבא!</strong>";
+    } else if (score >= 10) {
+        finalComment.innerHTML = "👍 <strong>תוצאה טובה! אתם בדרך הנכונה. תרגול נוסף קטן ותהיו מקצוענים לחלוטין!</strong>";
+    } else {
+        finalComment.innerHTML = "💪 <strong>כל הכבוד על המאמץ! מתמטיקה דורשת אימון בדיוק כמו ספורט. לחצו על הכפתור למטה לסיבוב נוסף!</strong>";
+    }
+}
+
+function escapeHtml(text) {
+    return text.replace(/'/g, "\\'");
+}
+
+window.onload = generateQuiz;
+</script>
+
+</body>
+</html>
